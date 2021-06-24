@@ -1,22 +1,43 @@
 import React, { useCallback, useState } from 'react';
 import Head from 'next/head';
-import { Form, Input } from 'antd';
+import { Form, Input, Checkbox, Button } from 'antd';
+import styled from 'styled-components';
 import AppLayout from "../components/AppLayout";
+import useInput from '../hooks/useInput';
+
+const ErrorMessage = styled.div`
+    color: red;
+`
 
 const Signup = () => {
-    const [id, setId] = useState("");
-    const [pwd, setPwd] = useState("");
-    const [nickname, setNickname] = useState("");
+    const [id, onChangeId] = useInput('');
+    const [pwd, onChangePwd] = useInput('');
+    const [nickname, onChangeNickname] = useInput('');
 
-    const onChange = useCallback((e) => {
-        const {name} = e.target.value;
-    },[]);
-    const onSubmit = useCallback(
-        () => {
-            
-        },
-        [],
-    )
+    const [passwordCheck, setPasswordCheck] = useState('');
+    const [passwordError, setPasswordError] = useState(false);
+    const onChangePasswordCheck = useCallback((e) => {
+        setPasswordCheck(e.target.value);
+        setPasswordError(e.target.value !== pwd);
+    }, [pwd]);
+
+    const [term, setTerm] = useState(false);
+    const [termError, setTermError] = useState(false);
+    const onChangeTerm = useCallback((e)=>{
+        setTerm(e.target.checked);
+        setTermError(false);
+    },[])
+    
+    const onSubmit = useCallback(() => {
+            if(pwd !== passwordCheck){
+                return setPasswordError(true);
+            }
+            if(!term){
+                return setTermError(true);
+            }
+            console.log(id, nickname, pwd);
+        }, [pwd, passwordCheck, term]);
+
     return (
         <AppLayout>
             <Head>
@@ -31,12 +52,25 @@ const Signup = () => {
                 <div>
                     <label htmlFor="user-pwd">비밀번호</label>
                     <br/>
-                    <Input name="user-pwd" value={id} required onChange={onChangeId}/>
+                    <Input name="user-pwd" value={pwd} required onChange={onChangePwd}/>
                 </div>
                 <div>
                     <label htmlFor="user-nickname">닉네임</label>
                     <br/>
-                    <Input name="user-nickname" value={id} required onChange={onChangeId}/>
+                    <Input name="user-nickname" value={nickname} required onChange={onChangeNickname}/>
+                </div>
+                <div>
+                    <label htmlFor="user-password-check">비밀번호체크</label>
+                    <br/>
+                    <Input name="user-password-check" type="password" value={passwordCheck} required onChange={onChangePasswordCheck}/>
+                    {passwordError && <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>}
+                </div>
+                <div>
+                    <Checkbox name="user-term" checked={term} onChange={onChangeTerm}>제로초 말을 잘 들을 것을 동의합니다.</Checkbox>
+                    {termError && <ErrorMessage >약관에 동의하셔야 합니다.</ErrorMessage>}
+                </div>
+                <div style={{marginTop: 10}}>
+                    <Button type="primary" htmlType="submit">가입하기</Button>
                 </div>
             </Form>
         </AppLayout>
