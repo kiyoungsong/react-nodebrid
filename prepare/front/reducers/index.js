@@ -1,11 +1,13 @@
+// 리덕스 서버사이드 렌더링을 위해서 HYDRATE를 사용
 import { HYDRATE } from "next-redux-wrapper"
+import { combineReducers } from "redux";
+import user from './user';
+import post from './post';
+
 
 const initialState = {
     user:{
-        isLoggedIn: false,
-        user: null,
-        siginUpData:{},
-        loginData: {},
+        
     },
     post:{
         mainPosts: [],
@@ -14,50 +16,25 @@ const initialState = {
 
 //async action creator (redux-saga)
 
-// action creator
-export const loginAction = (data) => {
-    return {
-        type: 'LOG_IN',
-        data
-    }
-}
 
-export const logoutAction = () => {
-    return {
-        type: 'LOG_OUT',
-    }
-}
 
 
 // (이전상태, 액션) => 다음상태
-const rootReducer = (state = initialState, action) => {
-
-    switch(action.type){
-        case 'HYDRATE':
-            return {
-                ...state, ...action.payload,
-            }
-        case 'LOG_IN':
-            return { 
-                ...state,
-                user:{
-                    ...state.user,
-                    isLoggedIn: true,
-                    user: action.data
+const rootReducer = combineReducers({
+    // HYDRATE를 위해서 인덱스 리듀서를 추가해주는 것임
+    index: (state = {}, action) => {
+        switch(action.type){
+            case 'HYDRATE':
+                return {
+                    ...state, ...action.payload,
                 }
-            }
-        case 'LOG_OUT':
-            return { 
-                ...state,
-                user:{
-                    ...state.user,
-                    isLoggedIn: false,
-                    user: null
-                }
-            }
-        default:
-            return state;
-    }
-}
+            
+            default:
+                return state;
+        }
+    },
+    user,
+    post,
+});
 
 export default rootReducer;
