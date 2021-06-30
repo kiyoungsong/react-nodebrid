@@ -7,6 +7,7 @@ import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
 import { REMOVE_POST_REQUEST } from '../reducers/post';
+import FollowButton from './FollowButton';
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
@@ -33,7 +34,6 @@ const PostCard = ({ post }) => {
 
   return (
     <div style={{ marginBottom: 20 }}>
-      {console.log('test', post.content)}
       <Card
         cover={post.Images[0] && <PostImages images={post.Images} />}
         actions={[
@@ -49,7 +49,9 @@ const PostCard = ({ post }) => {
                 {id && post.User.id === id ? (
                   <>
                     <Button> 수정</Button>
-                    <Button type="danger" loading={removePostLoading} onClick={onRemovePost}> 삭제</Button>
+                    <Button type="danger" loading={removePostLoading} onClick={onRemovePost}>
+                      삭제
+                    </Button>
                   </>
                 ) : <Button>신고</Button>}
               </Button.Group>
@@ -58,6 +60,7 @@ const PostCard = ({ post }) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
+        extra={id && <FollowButton post={post} />}
       >
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
