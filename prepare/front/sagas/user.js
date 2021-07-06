@@ -1,7 +1,10 @@
-import { all, fork, put, takeLatest, delay } from 'redux-saga/effects';
+import { all, fork, put, takeLatest, delay, call } from 'redux-saga/effects';
 
 import axios from 'axios';
 import {
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAILURE,
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
@@ -18,6 +21,27 @@ import {
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
 } from '../reducers/user';
+import { LOAD_POSTS_FAILURE } from '../reducers/post';
+
+function loadUserAPI(data) {
+  return axios.get('/user');
+}
+
+function* loadUser(action) {
+  try {
+    const result = yield call(loadUserAPI, action.data);
+    yield put({
+      type: LOAD_USER_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_USER_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 
 function followAPI(data) {
   return axios.patch(`/user/${data}/follow`);
@@ -63,62 +87,68 @@ function* unfollow(action) {
 
 // 별붙이면 안됨
 function logInAPI(data) {
-  return axios.post('/api/login', data);
+  return axios.post('/user/login', data);
 }
 
 function* logIn(action) {
   try {
     // 매개변수를 넘길때 밑의 형태로 넘겨야함
-    // const result = yield call(logInAPI, action.data);
-    yield delay(1000);
+    const result = yield call(logInAPI, action.data);
+    console.log(result);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
     yield put({
       type: LOG_IN_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
 
 function logOutAPI() {
-  return axios.post('/api/logout');
+  return axios.post('/user/logout');
 }
 
 function* logOut() {
   try {
-    // const result = yield call(logOutAPI);
-    yield delay(1000);
+    const result = yield call(logOutAPI);
+    console.log(result);
     yield put({
       type: LOG_OUT_SUCCESS,
     });
   } catch (err) {
     yield put({
       type: LOG_OUT_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
 
-function signUpAPI() {
-  return axios.post('/api/signup');
+// email, password, nickanem
+function signUpAPI(data) {
+  return axios.post('/user', data);
 }
 
-function* signUp() {
+function* signUp(action) {
   try {
-    // const result = yield call(signUpAPI);
-    yield delay(1000);
+    const result = yield call(signUpAPI, action.data);
+    console.log(result);
     yield put({
       type: SIGN_UP_SUCCESS,
     });
   } catch (err) {
+    console.log(err);
     yield put({
       type: SIGN_UP_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
+}
+
+function* watchLoadUser() {
+  yield takeLatest(LOAD_USER_REQUEST, loadUser);
 }
 
 function* watchFollow() {
@@ -144,6 +174,7 @@ function* watchSignUp() {
 
 export default function* userSaga() {
   yield all([
+    fork(watchLoadUser),
     fork(watchFollow),
     fork(watchUnfollow),
     fork(watchLogin),

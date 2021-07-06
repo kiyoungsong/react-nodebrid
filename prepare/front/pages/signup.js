@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Router from 'next/router';
 import Head from 'next/head';
 import { Form, Input, Checkbox, Button } from 'antd';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
 import AppLayout from '../components/AppLayout';
 import useInput from '../hooks/useInput';
 import { SIGN_UP_REQUEST } from '../reducers/user';
@@ -12,8 +13,29 @@ const ErrorMessage = styled.div`
 `;
 
 const Signup = () => {
-  const { signUpLoading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const { signUpLoading, signUpDone, signUpError, me } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (me && me.id) {
+      console.log('??');
+      // 뒤로가기했을때 그 페이지가 없음
+      Router.replace('/');
+    }
+  }, [me && me.id]);
+
+  useEffect(() => {
+    if (signUpDone) {
+      Router.replace('/');
+    }
+  }, [signUpDone]);
+
+  useEffect(() => {
+    if (signUpError) {
+      alert(signUpError);
+    }
+  }, [signUpError]);
+
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
   const [nickname, onChangeNickname] = useInput('');

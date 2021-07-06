@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import Link from 'next/link';
 import styled from 'styled-components';
@@ -16,13 +16,19 @@ const FormWrapper = styled(Form)`
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { logInLoading } = useSelector((state) => state.user);
+  const { logInLoading, logInError } = useSelector((state) => state.user);
   const [email, onChangeEmail] = useInput('');
-  const [pwd, onChangePwd] = useInput('');
+  const [password, onChangePwd] = useInput('');
+
+  useEffect(() => {
+    if (logInError) {
+      alert(logInError);
+    }
+  }, [logInError]);
 
   const onSubmitForm = useCallback(() => {
-    dispatch(loginRequestAction({ email, pwd }));
-  }, [email, pwd]);
+    dispatch(loginRequestAction({ email, password }));
+  }, [email, password]);
 
   return (
     <FormWrapper onFinish={onSubmitForm}>
@@ -35,7 +41,7 @@ const LoginForm = () => {
       <div>
         <label htmlFor="user-pwd">비밀번호</label>
         <br />
-        <Input type="password" name="user-pwd" value={pwd} onChange={onChangePwd} />
+        <Input type="password" name="user-pwd" value={password} onChange={onChangePwd} />
       </div>
       <ButtonWrapper>
         <Button type="primary" htmlType="submit" loading={logInLoading}>로그인</Button>

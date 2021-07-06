@@ -30,8 +30,10 @@ module.exports = (sequelize, DataTypes) => {
     db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' }); // 중간 테이블 이름 Like, 내가 like를 누른 게시글들
     // 내가 팔로잉하고 있는 사람을 찾으려면 팔로워 목록에서 나를 찾아야하고
     // 나를 팔로잉하고 있는 사람을 찾으려면 팔로잉 목록에서 나를 찾는다.
-    db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followers', foreginKey });
-    db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings', foreginKey });
+    // 중간 테이블이 생기는데 같은 테이블을 참고하고 있으므로 forginKey로 각 테이블의 컬럼명을 바꿔줌
+
+    db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followers', foreginKey: 'FollowingId' });
+    db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings', foreginKey: 'FollowerId' });
   };
   return User;
 };
